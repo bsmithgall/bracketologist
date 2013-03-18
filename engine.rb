@@ -4,6 +4,10 @@ class BracketEngine
     return a*(1 - b)/(a*(1 - b) + (1 - a)*b)
   end
 
+  def self.rander(min, max)
+    rand * (max-min) + min
+  end
+
   # Accepts an array of teams in the order of their seeding (so that the matchups
   # work). Returns an array of the winning teams from the matchup. So for the first
   # round, it takes 16 teams and returns the 8 winners. It figures out the odds of
@@ -19,10 +23,15 @@ class BracketEngine
       puts "Can't find team #{opponent_b}" if (!self.teams.include?(opponent_b))
 
       winning_pct_for_a = log5(self.teams[opponent_a], self.teams[opponent_b])
+      winning_pct_for_b = 1 - winning_pct_for_a
 
       puts opponent_a + " has a " + (winning_pct_for_a * 100).round().to_s + "% chance of beating " + opponent_b
 
-      if rand() > winning_pct_for_a
+      # increase the maximum 'rander' value to increase the likelihood of upsets. as good
+      # betting practice, the larger the pool you enter (assuming no or low entry fees)
+      # the more risk you should take
+
+      if rander(0,0.35) + winning_pct_for_b > winning_pct_for_a
         puts "Winner: " + opponent_b + "\n\n"
         winners << opponent_b
       else
@@ -91,12 +100,14 @@ class Bracket
       "Florida Gulf Coast", "Western Kentucky" ]
 
     # This order is important so that the proper teams meet in the final four.
-    @regions = { "Midwest" => midwest, "East" => east, "South" => south, "West" => west }
+    @regions = { "Midwest" => midwest, "West" => west, "East" => east, "South" => south }
 
     # BracketEngine.reduce works from outermost pair in towards the middle
-    @region_order = [ "West", "Midwest", "East", "South" ]
+    @region_order = [ "Midwest", "East", "South", "West" ]
 
     @final_four_teams = []
+
+    puts @final_four_teams
   end
 end
 
